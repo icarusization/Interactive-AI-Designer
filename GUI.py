@@ -6,7 +6,6 @@ from utils import *
 from embedding import tools
 import scipy.misc
 import numpy as np
-import os
 
 
 
@@ -33,7 +32,7 @@ class GUI:
 		self.dcgan = dcgan
 		self.dcgan2 = dcgan2
 		self.master = master
-		button_height=10
+
 
 		self.zdata = np.zeros(90,dtype=np.int32)
 
@@ -91,25 +90,25 @@ class GUI:
 		self.middleup.add(self.barmiddleup, height=bar_height)
 
 		self.middleinput = PanedWindow(self.middle, orient=VERTICAL)
-		self.middleup.add(self.middleinput, width=unit_width, height=input_height+button_height)
+		self.middleup.add(self.middleinput, width=unit_width, height=input_height)
 
 		self.i1 = PanedWindow(self.middleinput, orient=HORIZONTAL)
-		self.middleinput.add(self.i1, height=input_height/3)
-		self.l1 = Label(self.i1, text="artist")
+		self.middleinput.add(self.i1, height=input_height/4)
+		self.l1 = Label(self.i1, text="xxx")
 		self.i1.add(self.l1, width=unit_width/4)
 		self.s1 = Scale(self.i1, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided1)
 		self.i1.add(self.s1, width=3*unit_width/4)
 
 		self.i2 = PanedWindow(self.middleinput, orient=HORIZONTAL)
-		self.middleinput.add(self.i2, height=input_height/3)
-		self.l2 = Label(self.i2, text="genre")
+		self.middleinput.add(self.i2, height=input_height/4)
+		self.l2 = Label(self.i2, text="xxx")
 		self.i2.add(self.l2, width=unit_width/4)
 		self.s2 = Scale(self.i2, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided2)
 		self.i2.add(self.s2, width=3*unit_width/4)
 
 		self.i3 = PanedWindow(self.middleinput, orient=HORIZONTAL)
-		self.middleinput.add(self.i3, height=input_height/3)
-		self.l3 = Label(self.i3, text="style")
+		self.middleinput.add(self.i3, height=input_height/4)
+		self.l3 = Label(self.i3, text="xxx")
 		self.i3.add(self.l3, width=unit_width/4)
 		self.s3 = Scale(self.i3, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided3)
 		self.i3.add(self.s3, width=3*unit_width/4)
@@ -149,14 +148,16 @@ class GUI:
 
 
 		self.projectButtons = PanedWindow(self.right, orient=HORIZONTAL)
-		self.right.add(self.projectButtons, width=unit_width, height=button_height)
-		self.projectButtonrun = Button(self.projectButtons, text="Run", command=self.projectRun)
+		self.right.add(self.projectButtons, width=unit_width, height=bar_height)
+		self.arrowimage = ImageTk.PhotoImage(Image.open("./icons/arrow.png").resize((bar_height,bar_height)))
+		self.projectButtonrun = Label(self.projectButtons, image=self.arrowimage)
 		#self.projectClose = Button(self.projectButtons, text="Close", command=master.quit)
 		self.projectButtons.add(self.projectButtonrun, width=unit_width/2, height=bar_height)
+		self.projectButtonrun.bind("<Button-1>", self.projectRun)
 		#self.projectButtons.add(self.projectClose, width=unit_width/2, height=bar_height)
 
 		self.mergedimage = Label(self.right)
-		self.right.add(self.mergedimage, height=unit_height, width=unit_width)
+		self.right.add(self.mergedimage, height=unit_height - bar_height, width=unit_width)
 
 		#self.blank3 = Label(self.right)
 		#self.right.add(self.blank3, width=unit_width, height=bar_height)
@@ -233,7 +234,7 @@ class GUI:
 		self.scaleRun()
 	
 		
-	def projectRun(self):
+	def projectRun(self, event):
 		os.system('python neural_style.py --content content.jpg --styles style.jpg --output output.jpg')
 		self.bigimg=ImageTk.PhotoImage(Image.open("output.jpg").resize((finalsize,finalsize)))
 		self.mergedimage.config(image=self.bigimg)	
