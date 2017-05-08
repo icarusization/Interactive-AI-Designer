@@ -12,9 +12,11 @@ import os
 
 
 path="output.png"
-unit_height = 270
-unit_width = 270
-bar_height = 40
+unit_height = 300
+unit_width = 300
+bar_height = 60
+button_height = 20
+input_height = 150
 iconsize = 64
 finalsize = 128
 
@@ -31,7 +33,7 @@ class GUI:
 		self.dcgan = dcgan
 		self.dcgan2 = dcgan2
 		self.master = master
-
+		button_height=10
 
 		self.zdata = np.zeros(90,dtype=np.int32)
 
@@ -41,100 +43,130 @@ class GUI:
 		self.panedwindow.pack(fill=BOTH, expand=1)
 
 		self.left = PanedWindow(self.panedwindow, orient=VERTICAL)
-		self.panedwindow.add(self.left, width=unit_width, height=2*unit_height+4*bar_height+20)
-
+		self.panedwindow.add(self.left, width=unit_width, height=2*unit_height)
+		self.split1 = Label(self.panedwindow,bg='gray')
+		self.panedwindow.add(self.split1, width=2)
 		self.middle = PanedWindow(self.panedwindow, orient=VERTICAL)
-		self.panedwindow.add(self.middle, width=unit_width, height=2*unit_height+4*bar_height+20)
-
+		self.panedwindow.add(self.middle, width=unit_width, height=2*unit_height)
+		self.split2 = Label(self.panedwindow,bg='gray')
+		self.panedwindow.add(self.split2, width=2)
 		self.right = PanedWindow(self.panedwindow, orient=VERTICAL)
-		self.panedwindow.add(self.right, width=unit_width, height=2*unit_height+4*bar_height+20)
+		self.panedwindow.add(self.right, width=unit_width, height=2*unit_height)
 
-		self.barleftup = Label(self.left, bg='gray', text="Enter a sentense as content.")
-		self.left.add(self.barleftup, height=bar_height)
+		#left
+		self.leftup = PanedWindow(self.left, orient=VERTICAL)
+		self.left.add(self.leftup, width=unit_width, height=unit_height)
 
-		self.textField = Text(self.left, height=unit_height, width=unit_width)
+		self.contentbar = ImageTk.PhotoImage(Image.open("./icons/content.png").resize((unit_width,bar_height)))
+
+		self.barleftup = Label(self.leftup, image=self.contentbar)
+		self.leftup.add(self.barleftup, height=bar_height)
+
+		self.textField = Text(self.leftup, height=input_height, width=unit_width)
 		self.textField.insert(END, "Please enter here")
-		self.left.add(self.textField, height=unit_height)
+		self.leftup.add(self.textField, height=input_height)
 
-		self.textButtons = PanedWindow(self.left, orient=HORIZONTAL)
-		self.left.add(self.textButtons, height=bar_height)
+		self.textButtons = PanedWindow(self.leftup, orient=HORIZONTAL)
+		self.leftup.add(self.textButtons, height=button_height)
+		self.textBlank = Label(self.textButtons)
 		self.textButtonrun = Button(self.textButtons, text="Run", command=self.textRun)
-		self.textButtonrandom = Button(self.textButtons, text="Random", command=self.textRandom)
 		self.textButtonreset = Button(self.textButtons, text="Reset", command=self.textReset)
-		self.textButtons.add(self.textButtonrun, width=unit_width/3, height=bar_height)
-		self.textButtons.add(self.textButtonrandom, width=unit_width/3, height=bar_height)
-		self.textButtons.add(self.textButtonreset, width=unit_width/3, height=bar_height)
+		self.textButtons.add(self.textBlank, width=unit_width/2, height=button_height)
+		self.textButtons.add(self.textButtonrun, width=unit_width/4, height=button_height)
+		self.textButtons.add(self.textButtonreset, width=unit_width/4, height=button_height)
 
-		self.barleftdown = Label(self.left, bg='gray50', text="Generate a style.")
-		self.left.add(self.barleftdown, height=bar_height)
-		
-		self.s1 = Scale(self.left, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided1)
-		self.left.add(self.s1, height=unit_height/3)
 
-		self.s2 = Scale(self.left, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided2)
-		self.left.add(self.s2, height=unit_height/3)
-
-		self.s3 = Scale(self.left, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided3)
-		self.left.add(self.s3, height=unit_height/3)
-		
-
-		self.scaleButtons = PanedWindow(self.left, orient=HORIZONTAL)
-		self.left.add(self.scaleButtons, height=bar_height)
-		self.scaleButtonrun = Button(self.scaleButtons, text="Run", command=self.scaleRun)
-		self.scaleButtonrandom = Button(self.scaleButtons, text="Random", command=self.scaleRandom)
-		self.scaleButtonreset = Button(self.scaleButtons, text="Reset", command=self.scaleReset)
-		self.scaleButtons.add(self.scaleButtonrun, width=unit_width/3, height=bar_height)
-		self.scaleButtons.add(self.scaleButtonrandom, width=unit_width/3, height=bar_height)
-		self.scaleButtons.add(self.scaleButtonreset, width=unit_width/3, height=bar_height)
-
-		self.barmiddleup = Label(self.middle, bg='gray', text="Select the content.")
-		self.middle.add(self.barmiddleup, height=bar_height)
-
-		self.textImageField = Canvas(self.middle, width=unit_width, height=unit_height+bar_height)
-		self.middle.add(self.textImageField, width=unit_width, height=unit_height)
-		self.blank1 = Label(self.middle)
-		self.middle.add(self.blank1, width=unit_width, height=bar_height)
+		self.textImageField = Canvas(self.left, width=unit_width, height=unit_height)
+		self.left.add(self.textImageField, width=unit_width, height=unit_height)
 		self.textImageField.bind("<Button-1>", self.text_clicked)
 		self.textImagesIcon=[]
-		
-		self.barmiddledown = Label(self.middle, bg='gray50', text="Select the style.")
-		self.middle.add(self.barmiddledown, height=bar_height)
 
-		self.scaleImageField = Canvas(self.middle, width=unit_width, height=unit_height+bar_height)
-		self.middle.add(self.scaleImageField, width=unit_width, height=unit_height+bar_height)
-		self.blank2 = Label(self.middle)
-		self.middle.add(self.blank2, width=unit_width, height=bar_height)
+		#middle
+		self.middleup = PanedWindow(self.middle, orient=VERTICAL)
+		self.middle.add(self.middleup, width=unit_width, height=unit_height)
+
+		self.stylebar = ImageTk.PhotoImage(Image.open("./icons/style.png").resize((unit_width,bar_height)))
+
+		self.barmiddleup = Label(self.middleup, image=self.stylebar)
+		self.middleup.add(self.barmiddleup, height=bar_height)
+
+		self.middleinput = PanedWindow(self.middle, orient=VERTICAL)
+		self.middleup.add(self.middleinput, width=unit_width, height=input_height+button_height)
+
+		self.i1 = PanedWindow(self.middleinput, orient=HORIZONTAL)
+		self.middleinput.add(self.i1, height=input_height/3)
+		self.l1 = Label(self.i1, text="artist")
+		self.i1.add(self.l1, width=unit_width/4)
+		self.s1 = Scale(self.i1, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided1)
+		self.i1.add(self.s1, width=3*unit_width/4)
+
+		self.i2 = PanedWindow(self.middleinput, orient=HORIZONTAL)
+		self.middleinput.add(self.i2, height=input_height/3)
+		self.l2 = Label(self.i2, text="genre")
+		self.i2.add(self.l2, width=unit_width/4)
+		self.s2 = Scale(self.i2, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided2)
+		self.i2.add(self.s2, width=3*unit_width/4)
+
+		self.i3 = PanedWindow(self.middleinput, orient=HORIZONTAL)
+		self.middleinput.add(self.i3, height=input_height/3)
+		self.l3 = Label(self.i3, text="style")
+		self.i3.add(self.l3, width=unit_width/4)
+		self.s3 = Scale(self.i3, from_=0, width=10, to=99, length=30, tickinterval=99, orient=HORIZONTAL, command=self.slided3)
+		self.i3.add(self.s3, width=3*unit_width/4)
+		
+
+		self.scaleButtons = PanedWindow(self.middle, orient=HORIZONTAL)
+		self.middleup.add(self.scaleButtons, height=button_height)
+		self.scaleBlank = Label(self.scaleButtons)
+		self.scaleButtonrun = Button(self.scaleButtons, text="Run", command=self.scaleRun)
+		self.scaleButtonrandom = Button(self.scaleButtons, text="Random", command=self.scaleRandom)
+		self.scaleButtons.add(self.scaleBlank, width=unit_width/2, height=button_height)
+		self.scaleButtons.add(self.scaleButtonrun, width=unit_width/4, height=button_height)
+		self.scaleButtons.add(self.scaleButtonrandom, width=unit_width/4, height=button_height)
+
+
+		self.scaleImageField = Canvas(self.middle, width=unit_width, height=unit_height)
+		self.middle.add(self.scaleImageField, width=unit_width, height=unit_height)
 		self.scaleImageField.bind("<Button-1>", self.scale_clicked)
 		self.scaleImagesIcon=[]
 		
-		self.logolabel = Label(self.right, bg='pink', text="Final Result.")
-		self.right.add(self.logolabel, height=bar_height, width=unit_width)
+
+		#right
+		self.resultbar = ImageTk.PhotoImage(Image.open("./icons/result.png").resize((unit_width,bar_height)))
+
+		self.barrightup = Label(self.right, image=self.resultbar)
+		self.right.add(self.barrightup, height=bar_height)
+
+		self.selectedimages = PanedWindow(self.right, orient = HORIZONTAL)
+		self.right.add(self.selectedimages, width=unit_width, height=input_height)
+		self.selectedtext = Label(self.selectedimages)
+		self.plus = Label(self.selectedimages, text="+")
+		self.selectedstyle = Label(self.selectedimages)
+		self.selectedimages.add(self.selectedtext, height=input_height, width=2*unit_width/5)
+		self.selectedimages.add(self.plus, height=input_height, width=unit_width/5)
+		self.selectedimages.add(self.selectedstyle, height=input_height, width=2*unit_width/5)
+
+
+
+		self.projectButtons = PanedWindow(self.right, orient=HORIZONTAL)
+		self.right.add(self.projectButtons, width=unit_width, height=button_height)
+		self.projectButtonrun = Button(self.projectButtons, text="Run", command=self.projectRun)
+		#self.projectClose = Button(self.projectButtons, text="Close", command=master.quit)
+		self.projectButtons.add(self.projectButtonrun, width=unit_width/2, height=bar_height)
+		#self.projectButtons.add(self.projectClose, width=unit_width/2, height=bar_height)
 
 		self.mergedimage = Label(self.right)
 		self.right.add(self.mergedimage, height=unit_height, width=unit_width)
 
-		self.blank3 = Label(self.right)
-		self.right.add(self.blank3, width=unit_width, height=bar_height)
-
-		self.rightlabel = Label(self.right, bg='pink', text="The Chosen Content and Style.")
-		self.right.add(self.rightlabel, height=bar_height)
-
-		self.selectedimages = PanedWindow(self.right, orient = HORIZONTAL)
-		self.right.add(self.selectedimages, width=unit_width, height=unit_height)
-		self.selectedtext = Label(self.right)
-		self.selectedstyle = Label(self.right)
-		self.selectedimages.add(self.selectedtext, height=unit_height/2, width=unit_width/2)
-		self.selectedimages.add(self.selectedstyle, height=unit_height/2, width=unit_width/2)
+		#self.blank3 = Label(self.right)
+		#self.right.add(self.blank3, width=unit_width, height=bar_height)
 
 
 		
 
-		self.projectButtons = PanedWindow(self.right, orient=HORIZONTAL)
-		self.right.add(self.projectButtons, width=unit_width/3, height=bar_height)
-		self.projectButtonrun = Button(self.projectButtons, text="Run", command=self.projectRun)
-		self.projectClose = Button(self.projectButtons, text="Close", command=master.quit)
-		self.projectButtons.add(self.projectButtonrun, width=unit_width/2, height=bar_height)
-		self.projectButtons.add(self.projectClose, width=unit_width/2, height=bar_height)
+
+		
+
 
 
 
